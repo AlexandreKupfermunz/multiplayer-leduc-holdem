@@ -13,6 +13,8 @@ public class GameState {
     private final List<Player> players;
     private Deck deck;
     private final Pot pot;
+    private final int numRanks;
+    private final int numSuits;
 
     private Card communityCard;
     private int potTotal;
@@ -21,9 +23,11 @@ public class GameState {
     private Round round;
     private int actionsThisRound;
 
-    public GameState(List<Player> players) {
+    public GameState(List<Player> players, int numRanks, int numSuits) {
         this.players = players;
-        this.deck = new Deck();
+        this.numRanks = numRanks;
+        this.numSuits = numSuits;
+        this.deck = new Deck(numRanks, numSuits);
         this.pot = new Pot();
         this.firstPlayerIndex = 0;
     }
@@ -32,7 +36,7 @@ public class GameState {
         for (Player p : players) {
             p.resetForNewHand();
         }
-        deck = new Deck();
+        deck = new Deck(numRanks, numSuits);
         deck.shuffle();
         communityCard = null;
         potTotal = 0;
@@ -70,7 +74,9 @@ public class GameState {
 
     // turning
     public void advanceToNextPlayer() {
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        do {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        } while (getCurrentPlayer().isFolded() && !onlyOnePlayerLeft());
     }
 
     public Player getCurrentPlayer() {
@@ -124,5 +130,11 @@ public class GameState {
             }
         }
         return count <= 1;
+    }
+
+    public void skipFoldedPlayers() {
+        while (getCurrentPlayer().isFolded()) {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        }
     }
 }

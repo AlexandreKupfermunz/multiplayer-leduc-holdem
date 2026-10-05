@@ -8,11 +8,16 @@ public class Deck {
     private final List<Card> cards;
 
     // adds all the cards to a deck, easy to scale if we change suits/number of cards
-    public Deck() {
+    public Deck(int numRanks, int numSuits) {
+        Rank[] ranks = Rank.values();
+        Suit[] suits = Suit.values();
+        if (numRanks < 1 || numRanks > ranks.length || numSuits < 1 || numSuits > suits.length) {
+            throw new IllegalArgumentException("Invalid deck size");
+        }
         cards = new ArrayList<>();
-        for (Suit suit : Suit.values()) {
-            for (Rank rank : Rank.values()) {
-                cards.add(new Card(rank, suit));
+        for (int s = 0; s < numSuits; s++) {
+            for (int r = 0; r < numRanks; r++) {
+                cards.add(new Card(ranks[r], suits[s]));
             }
         }
     }
