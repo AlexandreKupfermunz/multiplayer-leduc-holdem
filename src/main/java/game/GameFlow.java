@@ -27,6 +27,10 @@ public class GameFlow {
     // plays a single hand: deal -> bet -> reveal -> bet -> showdown -> payout
     public void playHand() {
         state.resetForNewHand();
+        for (Player p : state.getPlayers()) {
+            if (p.getChips() < ANTE) p.fold();
+        }
+        state.skipFoldedPlayers();
 
         collectAntes();
         dealHoleCards();
@@ -46,16 +50,29 @@ public class GameFlow {
 
     public void playHands(int count) {
         for (int i = 0; i < count; i++) {
-            System.out.println("=== Hand " + (i + 1) + " ===");
+            if (playersWhoCanPlay() < 2) {
+                System.out.println("Not enough players with chips left. Game over");
+                return;
+            }
+            System.out.println("Hand " + (i + 1));
             playHand();
             System.out.println();
         }
+    }
+
+    private int playersWhoCanPlay() {
+        int n = 0;
+        for (Player p : state.getPlayers()) {
+            if (p.getChips() >= ANTE) n++;
+        }
+        return n;
     }
 
     // the steps
 
     private void collectAntes() {
         for (Player p : state.getPlayers()) {
+            if (p.isFolded()) continue;
             p.bet(ANTE);
             state.addToPot(p, ANTE);
         }
@@ -63,6 +80,7 @@ public class GameFlow {
 
     private void dealHoleCards() {
         for (Player p : state.getPlayers()) {
+            if (p.isFolded()) continue;
             p.getHand().addCard(state.getDeck().deal());
         }
     }
@@ -90,6 +108,7 @@ public class GameFlow {
             Card community = state.getCommunityCard();
             System.out.println("Community card: " + community);
             for (Player p : state.getPlayers()) {
+                if (p.isFolded()) continue; // use if (p.getHands().getCards().isEmpty()) continue; for debugging since folded cards will be visible then
                 System.out.println(p.getName() + " had " + p.getHand().getCards());
             }
             winner = rules.determineWinner(state);
