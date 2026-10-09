@@ -1,6 +1,7 @@
 package objects;
 
 import java.util.List;
+import java.util.Random; 
 
 public class GameState {
 
@@ -22,14 +23,21 @@ public class GameState {
     private int firstPlayerIndex;
     private Round round;
     private int actionsThisRound;
+    private int ante;
 
     public GameState(List<Player> players, int numRanks, int numSuits) {
+        this(players, numRanks, numSuits, new Random());
+    }
+
+    public GameState(List<Player> players, int numRanks, int numSuits, Random random) {
         this.players = players;
         this.numRanks = numRanks;
         this.numSuits = numSuits;
         this.deck = new Deck(numRanks, numSuits);
         this.pot = new Pot();
         this.firstPlayerIndex = 0;
+        this.firstPlayerIndex = random.nextInt(players.size());
+        this.ante = 1;
     }
 
     public void resetForNewHand() {
@@ -60,6 +68,14 @@ public class GameState {
 
     public void rotateFirstPlayer() {
         firstPlayerIndex = (firstPlayerIndex + 1) % players.size();
+    }
+
+        public int getAnte() {
+        return ante;
+    }
+
+        public void setAnte(int ante) {
+        this.ante = ante;
     }
 
     // pot
