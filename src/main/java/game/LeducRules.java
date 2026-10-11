@@ -15,6 +15,8 @@ public class LeducRules implements Rules {
     //raise size is fixed per round: smaller preflop, bigger postflop
     private static final int RAISE_AMOUNT_PRETURN = 2;
     private static final int RAISE_AMOUNT_POSTTURN = 4;
+    private static final int RAISE_MULTIPLIER_PRETURN = 2;
+    private static final int RAISE_MULTIPLIER_POSTTURN = 4;
 
     @Override
     public List<Action> getLegalActions(GameState state) {
@@ -125,6 +127,11 @@ public class LeducRules implements Rules {
         return state.getRound() == GameState.Round.PRETURN
                 ? RAISE_AMOUNT_PRETURN
                 : RAISE_AMOUNT_POSTTURN;
+    private int getRaiseAmount(GameState state){      
+    if (state.getRound() == GameState.Round.PRETURN) {
+            return RAISE_MULTIPLIER_PRETURN * state.getAnte();
+        }
+        return RAISE_MULTIPLIER_POSTTURN * state.getAnte();
     }
 
     private int highestActiveBet(GameState state) {
